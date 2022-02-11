@@ -1,8 +1,12 @@
 # This is a basic workflow that is manually triggered
-
+env:
+  REGISTRY_NAME: { registry-name }
+  CLUSTER_NAME: { cluster-name }
+  CLUSTER_RESOURCE_GROUP: { resource-group-name }
+  NAMESPACE: { namespace-name }
+  APP_NAME: { app-name }
 name: CI/CD Pipeline
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -47,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-  build:
+  buildJar:
     needs: sonar
     name: Build
     runs-on: ubuntu-latest
@@ -71,4 +75,43 @@ jobs:
           name: artifact
           #From
           path: target/shop-azure-application-0.0.1-SNAPSHOT.jar
+  buildDockerContainer:
+    needs: sonar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - run: |
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.APP_NAME }}:${{ github.sha }}
+        working-directory: ./docker
+      - uses: azure/aks-set-context@v1
+        with:
+          creds: '${{secrets.AZURE_CREDENTIALS}}'
+          cluster-name: ${{env.CLUSTER_NAME}}
+          resource-group: ${{env.CLUSTER_RESOURCE_GROUP}}
+      - run: |
+          kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o -json | kubectl apply -f -
+      - uses: azure/k8s-create-secret@v1
+        with:
+          container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+          container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          secret-name: ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
+          arguments: --force true
+      - uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            ${{ github.workspace }}/manifests/deployment.yaml
+            ${{ github.workspace }}/manifests/service.yaml
+          images: |
+            ${{env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          imagepullSecrets: |
+            ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
 
