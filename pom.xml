@@ -15,8 +15,8 @@
     <description>shop-azure-application</description>
     <properties>
         <java.version>11</java.version>
-        <!-- <docker.image.prefix>clementregistry.azurecr.io</docker.image.prefix>
-         <jib-maven-plugin.version>2.5.2</jib-maven-plugin.version>-->
+        <sonar.organization>chabimana</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <dependency>

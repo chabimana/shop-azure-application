@@ -15,7 +15,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: '11'
       - name: Cache Maven Packages
         uses: actions/cache@v1
         with:
@@ -24,4 +24,27 @@ jobs:
           restore-keys: ${{runner.os}}-m2
       - name: Run Tests
         run: mvn -B test
-        
+  sonar:
+    needs: tests
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+      #Setup Sonar cloud cache
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      #Analyze project with SonarCloud
+      - name: Analyse with Sonar cloud
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=chabimana_shop-azure-application
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+
