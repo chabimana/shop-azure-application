@@ -63,6 +63,8 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Build with Maven
+        run: mvn -B package -DskipTests --file pom.xml
       - name: Upload JAR
         uses: actions/upload-artifact@v1
         with:
