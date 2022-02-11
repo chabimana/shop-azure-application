@@ -43,7 +43,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       #Analyze project with SonarCloud
       - name: Analyse with Sonar cloud
-        run: mvn -B verify sonar:sonar -Dsonar.projectKey=chabimana_shop-azure-application -Dsonar.host.url=https//sonarcloud.io -Dsonar.login=$SONAR_TOKEN
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=chabimana_shop-azure-application -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
