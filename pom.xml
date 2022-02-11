@@ -15,8 +15,8 @@
     <description>shop-azure-application</description>
     <properties>
         <java.version>11</java.version>
-        <docker.image.prefix>clementregistry.azurecr.io</docker.image.prefix>
-        <jib-maven-plugin.version>2.5.2</jib-maven-plugin.version>
+        <!-- <docker.image.prefix>clementregistry.azurecr.io</docker.image.prefix>
+         <jib-maven-plugin.version>2.5.2</jib-maven-plugin.version>-->
     </properties>
     <dependencies>
         <dependency>
@@ -41,7 +41,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${jib-maven-plugin.version}</version>
                 <groupId>com.google.cloud.tools</groupId>
@@ -53,7 +53,7 @@
                         <image>${docker.image.prefix}/${project.artifactId}</image>
                     </to>
                 </configuration>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>
